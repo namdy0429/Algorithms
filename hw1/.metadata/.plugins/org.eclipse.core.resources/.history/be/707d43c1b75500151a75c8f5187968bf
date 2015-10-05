@@ -1,0 +1,69 @@
+
+public class ParseLine {
+	String line;
+	int id;
+	int temp_num;
+	
+	public ParseLine(String l){
+		this.line = l;
+		this.id = 0;
+	}
+	
+	public Integer getNextLex(){
+		int result = 0;
+		char ch;
+		char next_ch;
+		
+		while(true) {
+//			System.out.println("id: " + id + ", len: " + this.line.length());
+			if (id+1 == this.line.length()){
+//				ch = this.line.charAt(id);
+//				if (ch == ')') {
+//					result = -5;
+//					break;
+//				}
+//				else {
+//					System.out.println("wrong input");
+//					result = -1;
+//					break;
+//				}
+				result = -5;
+				break;
+			}
+			else {
+				ch = this.line.charAt(id);
+				next_ch = this.line.charAt(id+1);
+				
+
+//				System.out.println("ch: "+ch);
+//				System.out.println("next_ch: "+next_ch);
+				
+				if (ch == '(') {
+					result = -3;
+					break;
+				}
+				else if (ch == ')') {
+					result = -4;
+					break;
+				}
+				else if (Character.isDigit(ch)) {
+					if (Character.isDigit(next_ch)){
+						this.temp_num = this.temp_num * 10 + Character.getNumericValue(ch);
+						this.id++;
+					}
+					else {
+						result = this.temp_num * 10 + Character.getNumericValue(ch);
+						this.temp_num = 0;
+						break;
+					}
+				}
+				else {
+					this.id++;
+				}
+			}
+		}
+		this.id++;
+		return result;
+	}
+	
+}

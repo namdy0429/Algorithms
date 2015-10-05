@@ -1,0 +1,48 @@
+package FFT;
+
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+public class main {
+	static final String INPUT_PATH = "input.txt";
+	static final String OUTPUT_PATH = "/Users/namdy/Documents/2015_FALL/ALGORITHM/hw2/CollinearPts/output.txt";
+	private static BufferedReader br;
+	private static PrintWriter pw;
+
+	public static void main(String[] args) throws IOException{
+		int num_test, num_coeff;
+		String line;
+		String[] temp;
+		ArrayList<complex> complex_list = new ArrayList<complex>();
+		
+		br = new BufferedReader(new FileReader(main.INPUT_PATH));
+		pw = new PrintWriter(main.OUTPUT_PATH);
+		
+		num_test = Integer.parseInt(br.readLine());
+		System.out.println(num_test);
+		
+		line = br.readLine();
+//		if(line == null) 	break;
+		
+		temp = line.split(" ");
+		num_coeff = Integer.parseInt(temp[0]);
+		for(int i=1; i<num_coeff; i++){
+			complex new_complex = new complex(Integer.parseInt(temp[i]),0);
+			complex_list.add(new_complex);
+			System.out.println(complex_list.get(i).getRP() + " " + complex_list.get(i).getIP());
+		}
+		complex new_w = new complex(1, 0);
+		FFT new_FFT = new FFT(complex_list, new_w);
+		new_FFT.printComplexList();
+		new_FFT.doFFT();
+		
+		new_FFT.printComplexList();
+
+		br.close();
+		pw.close();
+	}
+
+}

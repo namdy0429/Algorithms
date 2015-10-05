@@ -1,0 +1,23 @@
+package CollinearPts;
+
+public class Line {
+	float slope;
+	float inter_x;
+	int[] pts;
+	int count;
+	
+	Line(){
+		this.slope = 0;
+		this.inter_x = 0;
+		this.count = 0;
+	}
+	
+	Line(float s, float x, int a, int b){
+		this.slope = s;
+		this.inter_x = x;
+		this.pts[0] = a;
+		this.pts[1] = b;
+		this.count = 1;
+	}
+	
+}

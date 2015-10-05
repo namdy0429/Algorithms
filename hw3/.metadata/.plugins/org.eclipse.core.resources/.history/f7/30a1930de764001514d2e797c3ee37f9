@@ -1,0 +1,25 @@
+package FFT;
+
+public class complex {
+	private double real_part;
+	private double imaginary_part;
+	public complex(double rp, double ip){
+		this.real_part = rp;
+		this.imaginary_part = ip;
+	}
+	public void setRP(double _rp){
+		real_part = _rp; 
+	}
+	public void setIP(double _ip){
+		imaginary_part = _ip;
+	}
+	public double getRP(){
+		return real_part;
+	}
+	public double getIP(){
+		return imaginary_part;
+	}
+	public String toString(){
+		return real_part + "+" + imaginary_part + "i";
+	}
+}

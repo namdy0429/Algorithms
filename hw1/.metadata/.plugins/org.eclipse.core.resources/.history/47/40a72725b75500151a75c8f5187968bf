@@ -1,0 +1,127 @@
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import main.Main;
+
+public class BinaryTreeSum {
+	static final String OUTPUT_PATH = "/Users/namdy/Documents/2015_FALL/ALGORITHM/hw1/BinaryTreeSum/output.txt";
+	private static PrintWriter file_out;
+	//count time, file out, file name modify
+
+	public static Stack<Integer> sum_stack = new Stack<Integer>();
+	public static Stack<parenClass> paren_stack = new Stack<parenClass>();
+
+	public static class parenClass {
+		int val;
+		int side;
+		
+		public parenClass(){
+			this.val = 0;
+			this.side = 0;
+		}
+		public parenClass(Integer n){
+			this.val = n;
+			this.side = 0;
+		}
+	}
+	
+	static void updateParenStack(Stack<parenClass> paren_stack){
+		parenClass old_paren;
+		parenClass new_paren = new parenClass();
+		
+		old_paren = paren_stack.pop();
+		new_paren.val = old_paren.val;
+		new_paren.side = 1;
+		paren_stack.push(new_paren);
+		
+	}
+	
+	static String getPath(Stack<parenClass> p){
+		String result = "";
+		if(p.empty()) {
+			System.out.println("-1");
+			return "-1";
+		}
+		else {
+			while(!p.empty()){
+				result = Integer.toString(p.peek().side) + result;
+				p.pop();
+			}
+			result = '0' + result;
+			System.out.println(result);
+			return result;
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		int lex = 0;
+		int remain_sum = 0;
+		int num_test = 0;
+		
+		file_out = new PrintWriter(BinaryTreeSum.OUTPUT_PATH);
+		
+		BufferedReader br = new BufferedReader(new FileReader("input.txt"));
+		num_test = Integer.parseInt(br.readLine());
+		
+		
+		
+        while(num_test > 0) {
+            String line = br.readLine();
+            ParseLine thisLine = new ParseLine(line);
+            
+            if (line==null) break;
+            remain_sum = thisLine.getNextLex();
+            
+            while(true){
+            	lex = thisLine.getNextLex();
+            	if(lex == -5){
+            		file_out.println(getPath(paren_stack));
+            		break;
+            	}
+            	else if (lex == -3) {		//'('
+        			sum_stack.push(remain_sum);
+        		}
+        		else if (lex == -4) {	// ')'
+        			if (sum_stack.peek() == 0){
+        				if(paren_stack.peek().side==1){
+        					paren_stack.pop();
+                    		file_out.println(getPath(paren_stack));
+        					break;
+        				}
+        				else {
+        					updateParenStack(paren_stack);
+        				}
+        			}
+        			else {
+        				if(paren_stack.empty()){
+                    		file_out.println(getPath(paren_stack));
+        					break;
+        				}
+        				else if(paren_stack.peek().side==1){
+        					remain_sum += paren_stack.peek().val;
+        					paren_stack.pop();
+        					sum_stack.pop();
+        				}
+        				else {
+        					updateParenStack(paren_stack);
+        				}	
+        			}
+        		}
+        		else if (lex > 0) {		// numbers
+        			parenClass newParen = new parenClass(lex); 
+        			remain_sum -= lex;
+        			paren_stack.push(newParen);
+        		}
+        		else {					// Exception
+        			
+        		}
+            }
+        	num_test--;
+        }
+        br.close();
+	}
+
+}

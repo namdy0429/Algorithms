@@ -1,0 +1,152 @@
+package CollinearPts;
+
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+public class CollinearPts {
+	static final String INPUT_PATH = "input.txt";
+	static final String OUTPUT_PATH = "Users/namdy/Documents/2015_FALL/ALGORITHM/hw2/CollinearPts/output.txt";
+	private static BufferedReader br;
+	private static PrintWriter pw;
+	
+	public static class Ordinate {
+		int x = 0;
+		int y = 0;
+		int count = 0;
+		
+		Ordinate(int a, int b){
+			this.x = a;
+			this.y = b;
+			this.count = 0;
+		}
+	}
+	public static Comparator<Ordinate> lexAscOrder = new Comparator<Ordinate>() {
+		@Override
+		public int compare(Ordinate o1, Ordinate o2) {
+			if (o1.x == o2.x)
+				return o1.y > o2.y ? 1 : (o1.y == o2.y ? 0 : -1);
+			else
+				return o1.x > o2.x ? 1 : (o1.x == o2.x ? 0 : -1);
+		}
+	};
+	
+	public static void printPts(ArrayList<Ordinate> PtsArray){
+		for (Ordinate each : PtsArray) 
+			   System.out.println(String.valueOf(each.x) + ", " + String.valueOf(each.y));
+	}
+	
+	public static void printMap(HashMap<Line, TreeSet<Integer>> map){
+        
+        Set<Line> keys = map.keySet();
+        String s = "";
+        TreeSet<Integer> temp = new TreeSet<Integer>();
+        System.out.println("printMap");
+        for(Line p:keys){
+        	s = "";
+        	temp = map.get(p);
+        	Iterator it  = temp.iterator();
+        	while ( it.hasNext() ) {
+        		s = s + (int)it.next() + ", ";
+              }
+        	System.out.println(p.slope + ", " + p.inter_x + ": " + s);
+        }
+    }
+	public static void main(String[] args) throws IOException {
+		int num_test, num_pts, num_cross, i, j;
+		String line;
+
+		HashMap<Line, TreeSet<Integer>> line_map = new HashMap<Line, TreeSet<Integer>>();
+		ArrayList<Ordinate> PtsArray = new ArrayList<Ordinate>();
+	
+		br = new BufferedReader(new FileReader(CollinearPts.INPUT_PATH));
+		pw = new PrintWriter(CollinearPts.OUTPUT_PATH);
+		
+		num_test = Integer.parseInt(br.readLine());
+	
+		while(num_test > 0){
+			br.readLine();
+			num_cross = 0;
+			line = br.readLine();
+			if (line==null) break;
+			
+			String[] temp;
+			temp = line.split(" ");
+			num_pts = Integer.parseInt(temp[0]);
+			line_map.clear();
+			PtsArray.clear();
+			
+			for(i=0; i<num_pts; i++){
+				line = br.readLine();
+				temp = line.split(" ");
+				PtsArray.add(new Ordinate(Integer.parseInt(temp[0]), Integer.parseInt(temp[1])));
+			}
+			
+			
+			Collections.sort(PtsArray, lexAscOrder);
+			
+			//calculate slope & intercept_x
+			//update hash map
+					
+			for (i=0; i<num_pts; i++){
+				for (j=i+1; j<num_pts; j++){
+					Line new_line = new Line(
+							PtsArray.get(i).x, PtsArray.get(i).y, 
+							PtsArray.get(j).x, PtsArray.get(j).y
+							);
+					
+					if (line_map.containsKey(new_line)){
+						TreeSet<Integer> pts = new TreeSet<Integer>();
+						pts = line_map.get(new_line);
+						TreeSet<Integer> new_pts = new TreeSet<Integer>();
+						new_pts = pts;
+						new_pts.add(j);
+						line_map.put(new_line, new_pts);
+					}
+					else {
+						TreeSet<Integer> pts = new TreeSet<Integer>();
+						pts.add(i);
+						pts.add(j);
+						line_map.put(new_line, pts);
+					}
+//					printMap(line_map);
+//					System.out.println();
+				}
+			}
+			
+			 Set<Line> key = line_map.keySet();
+			 for (Iterator iterator = key.iterator(); iterator.hasNext();) {
+				 Line keyInfo = (Line) iterator.next();
+				 TreeSet<Integer> pts = (TreeSet<Integer>) line_map.get(keyInfo);
+				 if(pts.size()>2){
+					 Iterator<Integer> it = pts.iterator();
+					 while(it.hasNext()){
+						 int t = (int)it.next();
+//						 System.out.println(t);
+						 PtsArray.get(t).count++;
+						 }
+//					 System.out.println();
+				 }
+			}
+			
+			//print the results
+			for(i=0; i<num_pts; i++){
+				if(PtsArray.get(i).count>1)
+					num_cross++;
+			}
+			System.out.println(num_cross);
+			for(i=0; i<num_pts; i++){
+				if(PtsArray.get(i).count>1){
+					System.out.println(String.valueOf(PtsArray.get(i).x) + " " + String.valueOf(PtsArray.get(i).y));
+				}	
+			}
+			System.out.println();
+			num_test--;
+		}
+		br.close();
+	}
+}
+
+

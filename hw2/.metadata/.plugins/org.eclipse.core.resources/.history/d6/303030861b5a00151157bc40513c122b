@@ -1,0 +1,135 @@
+package CollinearPts;
+
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+
+
+public class CollinearPts {
+	public static class Ordinate {
+		int x = 0;
+		int y = 0;
+		int count = 0;
+		
+		Ordinate(int a, int b){
+			this.x = a;
+			this.y = b;
+		}
+	}
+	
+	public static void printPts(ArrayList<Ordinate> PtsArray){
+		System.out.println("sorted");
+		for (Ordinate each : PtsArray) 
+			   System.out.println(String.valueOf(each.x) + ", " + String.valueOf(each.y));
+	}
+	
+	
+
+	public static void main(String[] args) throws IOException {
+		int num_test;
+		int num_pts;
+		int i, j;
+		int num_cross;
+		String s;
+		
+		HashMap<Line, int[]> line_map = new HashMap<Line, int[]>();
+		ArrayList<Ordinate> PtsArray = new ArrayList<Ordinate>();
+		
+		// sort the input
+		BufferedReader br = new BufferedReader(new FileReader("input.txt"));
+		num_test = Integer.parseInt(br.readLine());
+		br.readLine();
+		
+		
+		num_cross = 0;
+		num_pts = Integer.parseInt(br.readLine());
+		
+		for(i=0; i<num_pts; i++){
+			String[] temp = new String [2];
+			s = br.readLine();
+			temp = s.split(" ");
+			PtsArray.add(new Ordinate(Integer.parseInt(temp[0]), Integer.parseInt(temp[1])));
+			System.out.println(temp[0]+", "+temp[1]);
+		}
+		
+		Comparator<Ordinate> lexAscOrder = new Comparator<Ordinate>() {
+			@Override
+			public int compare(Ordinate o1, Ordinate o2) {
+				if (o1.x == o2.x)
+					return o1.y > o2.y ? 1 : (o1.y == o2.y ? 0 : -1);
+				else
+					return o1.x > o2.x ? 1 : (o1.x == o2.x ? 0 : -1);
+			}
+		};
+		Collections.sort(PtsArray, lexAscOrder);
+		
+		printPts(PtsArray);
+		//calculate slope & intercept_x
+		//update hash map
+				
+		for (i=0; i<num_pts; i++){
+			for (j=i+1; j<num_pts; j++){
+				Line new_line = new Line(
+						PtsArray.get(i).x, PtsArray.get(i).y, 
+						PtsArray.get(j).x, PtsArray.get(j).y
+						);
+				
+				System.out.println("p" + i + ", p" + j);
+				System.out.println("slope: " + new_line.slope);
+				System.out.println("intersect X: " + new_line.inter_x);
+				
+				System.out.println(line_map.containsKey(new_line));
+				if (line_map.containsKey(new_line)){
+					System.out.println("contains");
+					int[] pts = line_map.get(new_line);
+					int[] new_pts;
+					new_pts = new int[pts.length+1];
+					System.arraycopy(pts, 0, new_pts, 0, pts.length);
+					new_pts[pts.length] = j;
+					line_map.put(new_line, new_pts);
+				}
+				else {
+					int[] pts = {i, j};
+					System.out.println("put");
+					line_map.put(new Line(PtsArray.get(i).x, PtsArray.get(i).y, 
+							PtsArray.get(j).x, PtsArray.get(j).y)
+							, pts);
+					int[] temps = line_map.get(new_line);
+					System.out.println(new_line);
+					System.out.println(temps[0]+" "+temps[1]);
+				}
+				System.out.println();
+			}
+		}
+		
+		 Set key = line_map.keySet();
+		  
+		  for (Iterator iterator = key.iterator(); iterator.hasNext();) {
+			  Line keyInfo = (Line) iterator.next();
+			  int[] pts = (int[]) line_map.get(keyInfo);
+			  
+			  if(pts.length > 2){
+				  for(i=0; i<pts.length; i++){
+					  PtsArray.get(i).count++;
+				  }  
+			  }
+		   
+		  }
+		
+		//print the results
+		for(i=0; i<num_pts; i++){
+			if(PtsArray.get(i).count>1)
+				num_cross++;
+		}
+		System.out.println(num_cross);
+		for(i=0; i<num_pts; i++){
+			if(PtsArray.get(i).count>1){
+				System.out.println(String.valueOf(PtsArray.get(i).x) + " " + String.valueOf(PtsArray.get(i).y));
+			}	
+		}
+	}
+}
+
+

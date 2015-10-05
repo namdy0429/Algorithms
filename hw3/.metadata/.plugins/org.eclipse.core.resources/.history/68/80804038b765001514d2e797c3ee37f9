@@ -1,0 +1,80 @@
+package FFT;
+
+import java.util.*;
+
+public class FFT {
+	public final static double PI = 3.141592;
+	int n;
+	complex complex;
+	ArrayList<complex> complex_list;
+	
+	FFT(ArrayList<complex> cl, complex c){
+		this.n = cl.size();
+		this.complex = c;
+		this.complex_list = cl;
+		
+		if(log2(n) == (int)(log2(n))){
+			
+		}
+		else{
+			for(int i=this.n; i<Math.pow(2, Math.ceil(log2(n))); i++){
+				this.complex_list.add(new complex(0, 0));
+			}
+		}
+		this.n = cl.size();
+		System.out.println("init");
+		printComplexList();
+		
+		this.complex.setRP(Math.cos(2*PI/this.n));
+		this.complex.setIP(Math.sin(2*PI/this.n));
+	}
+	
+	public double log2(double x){
+		double b = 2;
+		return Math.log(x) / Math.log(b);
+	}
+	
+	public void doFFT(){
+		if(this.n == 1)
+			return;
+
+		ArrayList<complex> even_list = new ArrayList<complex>();
+		ArrayList<complex> odd_list = new ArrayList<complex>();
+		
+		for(int i=0; i<n/2; i++){
+			even_list.add(this.complex_list.get(i*2));
+			odd_list.add(this.complex_list.get(i*2+1));
+		}
+		
+		FFT even_FFT = new FFT(even_list, complex.multiplyComplex(this.complex, this.complex));
+		FFT odd_FFT = new FFT(odd_list, complex.multiplyComplex(this.complex, this.complex));
+		System.out.println("before even");
+		even_FFT.printComplexList();
+		System.out.println("before odd");
+		odd_FFT.printComplexList();
+		System.out.println("____________________");
+		
+		even_FFT.doFFT();
+		odd_FFT.doFFT();
+		
+		complex ww = new complex(1, 0);
+		for(int i=0; i<n/2; i++){
+			complex offset = complex.multiplyComplex(ww, odd_FFT.complex_list.get(i));
+			this.complex_list.set(i, complex.addComplex(even_FFT.complex_list.get(i), offset));
+			this.complex_list.set(i+n/2, complex.subtractComplex(even_FFT.complex_list.get(i),offset));
+			ww = complex.multiplyComplex(ww, this.complex);
+		}
+		
+		System.out.println("after");
+		this.printComplexList();
+		System.out.println("____________________");
+	}
+	
+	public void printComplexList(){
+		complex now_complex;
+		for(int i=0; i<this.complex_list.size(); i++){
+			now_complex = this.complex_list.get(i);
+			System.out.println(Math.round(now_complex.getRP()*100d)/100d+" "+Math.round(now_complex.getIP()*100d)/100d);
+		}
+	}
+}

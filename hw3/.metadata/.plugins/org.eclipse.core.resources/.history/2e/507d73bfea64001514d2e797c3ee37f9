@@ -1,0 +1,41 @@
+package FFT;
+
+import java.util.*;
+
+public class FFT {
+	int n;
+	complex complex;
+	ArrayList<complex> complex_list;
+	
+	FFT(ArrayList<complex> cl, complex c){
+		this.n = cl.size();
+		this.complex = c;
+		this.complex_list = cl;
+	}
+	
+	public void doFFT(){
+		if(this.n == 1)
+			return;
+
+		ArrayList<complex> even_list = new ArrayList<complex>();
+		ArrayList<complex> odd_list = new ArrayList<complex>();
+		
+		for(int i=0; i<n/2; i++){
+			even_list.add(this.complex_list.get(i*2));
+			odd_list.add(this.complex_list.get(i*2+1));
+		}
+		
+		FFT even_FFT = new FFT(even_list, complex.multiplyComplex(this.complex, this.complex));
+		FFT odd_FFT = new FFT(odd_list, complex.multiplyComplex(this.complex, this.complex));
+		even_FFT.doFFT();
+		odd_FFT.doFFT();
+		
+		complex ww = new complex(1, 0);
+		for(int i=0; i<n/2; i++){
+			complex offset = complex.multiplyComplex(ww, odd_FFT.complex_list.get(i));
+			this.complex_list.set(i, complex.addComplex(even_FFT.complex_list.get(i), offset));
+			this.complex_list.set(i+n/2, complex.subtractComplex(even_FFT.complex_list.get(i),offset));
+			ww = complex.multiplyComplex(ww, this.complex);
+		}
+	}
+}

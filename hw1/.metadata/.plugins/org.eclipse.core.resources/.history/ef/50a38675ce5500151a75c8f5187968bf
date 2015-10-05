@@ -1,0 +1,147 @@
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class BinaryTreeSum {
+//	static final String OUTPUT_PATH = "C:\\hw1\\2012147602.txt";
+	static final String OUTPUT_PATH = "/Users/namdy/Documents/2015_FALL/ALGORITHM/hw1/BinaryTreeSum/output.txt";
+	private static PrintWriter file_out;
+	//count time, file out, file name modify
+
+	// summation_stack: store the remaining number to match with the given summation
+	public static Stack<Integer> sum_stack = new Stack<Integer>();
+	// node_stack: store the information of the node 
+	public static Stack<nodeClass> node_stack = new Stack<nodeClass>();
+
+	public static class nodeClass {
+		int val;
+		int side;		//0: exploring the left node, 1: exploring the right node
+		
+		public nodeClass(){
+			this.val = 0;
+			this.side = 0;
+		}
+		public nodeClass(Integer n){
+			this.val = n;
+			this.side = 0;
+		}
+	}
+	
+	static void updateNodeStack(Stack<nodeClass> node_stack){
+	// update the top node's side from 0 to 1 (after finished exploring the left node)
+		nodeClass old_node;
+		nodeClass new_node = new nodeClass();
+		
+		old_node = node_stack.pop();
+		new_node.val = old_node.val;
+		new_node.side = 1;
+		node_stack.push(new_node);
+		
+	}
+	
+	static String getPath(Stack<nodeClass> n){
+	// return the path until current node 
+		String result = "";
+		if(n.empty()) {
+			return "-1";
+		}
+		else {
+			while(!n.empty()){
+				result = Integer.toString(n.peek().side) + result;
+				n.pop();
+			}
+			result = '0' + result;
+			return result;
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		int lex = 0;			// current lexeme
+		int remain_sum = 0;		// remained number to make the exact given summation
+		int num_test = 0;		// number of the testcases
+		long start = 0;
+		long end = 0;
+		
+		file_out = new PrintWriter(BinaryTreeSum.OUTPUT_PATH);
+		
+//		BufferedReader br = new BufferedReader(new FileReader("C:\\hw1\\input.txt"));
+		BufferedReader br = new BufferedReader(new FileReader("input.txt"));
+		num_test = Integer.parseInt(br.readLine());
+		
+        while(num_test > 0) {
+        	start = System.currentTimeMillis();
+        	
+        	// read the input file
+            String line = br.readLine();
+            ParseLine thisLine = new ParseLine(line);
+            
+            if (line==null) break;
+
+            remain_sum = thisLine.getNextLex();
+            
+            while(true){
+            	lex = thisLine.getNextLex();
+            	
+            	if(lex == -5){					// the end of the line
+            		file_out.println(getPath(node_stack));
+            		break;
+            	}
+            	else if (lex == -3) {			// '('
+        			sum_stack.push(remain_sum);	// push remaining sum to the sum_stack
+        		}
+        		else if (lex == -4) {			// ')'
+        			if (sum_stack.peek() == 0){	
+        			// remained number = 0 -> same with the given summation 
+        			// if the node does not have any more children, print the path
+        			// else, just update the node_stack
+        				
+        				if(node_stack.peek().side==1){
+        					node_stack.pop();
+                    		file_out.println(getPath(node_stack));
+        					break;
+        				}
+        				else {
+        					updateNodeStack(node_stack);
+        				}
+        			}
+        			else {
+        			// there is difference between the summation
+        			// if finished the children of the node, go up to the parent
+        			// else, explore the other child
+        				if(node_stack.empty()){
+        					// no more node is left
+                    		file_out.println(getPath(node_stack));
+        					break;
+        				}
+        				else if(node_stack.peek().side==1){
+        					remain_sum += node_stack.peek().val;
+        					node_stack.pop();
+        					sum_stack.pop();
+        				}
+        				else {
+        					updateNodeStack(node_stack);
+        				}	
+        			}
+        		}
+        		else if (lex > 0) {				// numbers
+        		// push the information of the node to the node_stack
+        		// update the remain_sum
+        			nodeClass new_node = new nodeClass(lex); 
+        			remain_sum -= lex;
+        			node_stack.push(new_node);
+        		}
+        		else {					// Exception
+        			System.out.println("wrong input");
+        		}
+            	end = System.currentTimeMillis();
+            }
+            System.out.println(start-end);
+        	num_test--;
+        }
+        file_out.close();
+        br.close();
+	}
+
+}

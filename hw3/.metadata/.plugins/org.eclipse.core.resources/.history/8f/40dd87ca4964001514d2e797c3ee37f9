@@ -1,0 +1,10 @@
+package FFT;
+
+public class FFT {
+	int n;
+	
+	
+	public boolean doFFT(){
+		
+	}
+}

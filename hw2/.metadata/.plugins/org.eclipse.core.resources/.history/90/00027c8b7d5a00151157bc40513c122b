@@ -1,0 +1,172 @@
+package CollinearPts;
+
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+public class CollinearPts {
+	static final String INPUT_PATH = "input.txt";
+	static final String OUTPUT_PATH = "/Users/namdy/Documents/2015_FALL/ALGORITHM/hw2/CollinearPts/output.txt";
+	private static BufferedReader br;
+	private static PrintWriter pw;
+	
+	public static class Coordinate {
+		int x = 0;
+		int y = 0;
+		int count = 0;
+		
+		Coordinate(int a, int b){
+			this.x = a;
+			this.y = b;
+			this.count = 0;
+		}
+	}
+	public static Comparator<Coordinate> lexAscOrder = new Comparator<Coordinate>() {
+		@Override
+		public int compare(Coordinate o1, Coordinate o2) {
+			if (o1.x == o2.x)
+				return o1.y > o2.y ? 1 : (o1.y == o2.y ? 0 : -1);
+			else
+				return o1.x > o2.x ? 1 : (o1.x == o2.x ? 0 : -1);
+		}
+	};
+	
+	public static void printPts(ArrayList<Coordinate> PtsArray){
+		for (Coordinate each : PtsArray) 
+			   System.out.println(String.valueOf(each.x) + ", " + String.valueOf(each.y));
+	}
+	
+	public static void printMap(HashMap<Line, TreeSet<Integer>> map){
+        
+        Set<Line> keys = map.keySet();
+        String s = "";
+        TreeSet<Integer> temp = new TreeSet<Integer>();
+        System.out.println("printMap");
+        for(Line p:keys){
+        	s = "";
+        	temp = map.get(p);
+        	Iterator it  = temp.iterator();
+        	while ( it.hasNext() ) {
+        		s = s + (int)it.next() + ", ";
+              }
+        	System.out.println(p.slope + ", " + p.inter_x + ": " + s);
+        }
+    }
+	public static void main(String[] args) throws IOException {
+		int num_test, num_pts, num_cross, i, j;
+		String line;
+		String[] temp;
+		long start, end;
+
+		HashMap<Line, TreeSet<Integer>> line_map = new HashMap<Line, TreeSet<Integer>>();
+		ArrayList<Coordinate> PtsArray = new ArrayList<Coordinate>();
+	
+		br = new BufferedReader(new FileReader(CollinearPts.INPUT_PATH));
+		pw = new PrintWriter(CollinearPts.OUTPUT_PATH);
+		
+		num_test = Integer.parseInt(br.readLine());
+	
+		while(num_test > 0){
+
+			num_pts = 0;
+			num_cross = 0;
+			line_map.clear();
+			PtsArray.clear();
+			
+			start = System.currentTimeMillis();
+			
+			br.readLine();					//read blank line between testcases
+			line = br.readLine();
+			if (line==null) break;
+			
+			//read the number of points
+			temp = line.split(" ");
+			num_pts = Integer.parseInt(temp[0]);
+			
+			//read coordinates
+			for(i=0; i<num_pts; i++){
+				line = br.readLine();
+				temp = line.split(" ");
+				PtsArray.add(new Coordinate(Integer.parseInt(temp[0]), Integer.parseInt(temp[1])));
+			}
+			
+			//sort the coordinates in the lexicographical order.
+			Collections.sort(PtsArray, lexAscOrder);
+			
+			//calculate slopes and x-intercept between all points and put to the hashmap.
+			//If two or more lines have same slope and x-intercept, just update the points
+			// in the hashmap.
+			for (i=0; i<num_pts; i++){
+				for (j=i+1; j<num_pts; j++){
+					Line new_line = new Line(
+							PtsArray.get(i).x, PtsArray.get(i).y, 
+							PtsArray.get(j).x, PtsArray.get(j).y
+							);
+					
+					if (line_map.containsKey(new_line)){
+						TreeSet<Integer> pts = new TreeSet<Integer>();
+						pts = line_map.get(new_line);
+						TreeSet<Integer> new_pts = new TreeSet<Integer>();
+						new_pts = pts;
+						new_pts.add(j);
+						line_map.put(new_line, new_pts);
+					}
+					else {
+						TreeSet<Integer> pts = new TreeSet<Integer>();
+						pts.add(i);
+						pts.add(j);
+						line_map.put(new_line, pts);
+					}
+//					printMap(line_map);
+//					System.out.println();
+				}
+			}
+			
+			//Check every line in the hashmap and if there is a line contains 
+			// contains more than 3 points, that will be the line that we will count.
+			//for each points, count how many collinear lines they have by adding 1
+			//per every line.
+			 Set<Line> key = line_map.keySet();
+			 for (Iterator iterator = key.iterator(); iterator.hasNext();) {
+				 Line keyInfo = (Line) iterator.next();
+				 TreeSet<Integer> pts = (TreeSet<Integer>) line_map.get(keyInfo);
+				 if(pts.size()>2){
+					 Iterator<Integer> it = pts.iterator();
+					 while(it.hasNext()){
+						 int t = (int)it.next();
+						 PtsArray.get(t).count++;
+						 }
+//					 System.out.println();
+				 }
+			}
+			
+			//print the results
+			//if a point has more than 1 line passing it, it'll be the crossing point
+			for(i=0; i<num_pts; i++){
+				if(PtsArray.get(i).count>1)
+					num_cross++;
+			}
+			System.out.println(num_cross);
+			pw.println(num_cross);
+			
+			for(i=0; i<num_pts; i++){
+				if(PtsArray.get(i).count>1){
+					System.out.println(String.valueOf(PtsArray.get(i).x) + " " + String.valueOf(PtsArray.get(i).y));
+					pw.println(String.valueOf(PtsArray.get(i).x) + " " + String.valueOf(PtsArray.get(i).y));
+				}	
+			}
+			end = System.currentTimeMillis();
+			System.out.println(end-start);
+			
+			System.out.println();
+			pw.println();
+			num_test--;
+		}
+		br.close();
+		pw.close();
+	}
+}
+
+

@@ -1,0 +1,44 @@
+import java.util.*;
+import java.io.PrintWriter;
+import java.io.IOException;
+
+import CollinearPts.Line;
+
+
+public class RandomInput {
+	static final String OUTPUT_PATH = "/Users/namdy/Documents/2015_FALL/ALGORITHM/hw2/RandomInput/output.txt";
+	private static PrintWriter pw;
+	
+	public static class Coordinate {
+		int x = 0;
+		int y = 0;
+		
+		Coordinate(int a, int b){
+			this.x = a;
+			this.y = b;
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+		pw = new PrintWriter(RandomInput.OUTPUT_PATH);
+		
+		TreeSet<Coordinate> pts_array = new TreeSet<Coordinate>();
+		
+		for(int i=0; i<1000; i++){
+			Coordinate c = new Coordinate((int)Math.random()*1000, (int)Math.random()*1000);
+			pts_array.add(c);
+		}
+		
+		pw.println(pts_array.size());
+		
+		Iterator<Coordinate> iterator = pts_array.iterator();
+	    while (iterator.hasNext()) {
+	    	Coordinate result = (Coordinate) iterator.next();
+	    	System.out.println(result.x + " " + result.y);
+	    }
+	    
+	    pw.close();
+	}
+
+}
